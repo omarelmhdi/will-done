@@ -2,7 +2,6 @@ from telethon import TelegramClient, events, Button
 import random
 import asyncio
 import os
-import sys
 
 # بيانات البوت
 API_ID = 22696039
