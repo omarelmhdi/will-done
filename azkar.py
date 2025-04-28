@@ -1,10 +1,8 @@
-# Coded by: @Mavdiii
-
 from telethon import TelegramClient, events, Button
 import random
 import asyncio
-import time
 import os
+import sys
 
 # بيانات البوت
 API_ID = 22696039
@@ -16,9 +14,6 @@ CHAT_IDS = [-1002457023914, -1002414213451]  # الجروب الأول + الج�
 
 # تأكيد بداية التشغيل
 print("✅ البوت بدأ التشغيل...")
-
-# تشغيل البوت
-bot = TelegramClient("bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
 # تحميل الأذكار من ملف التكست
 def load_azkar(file_path):
@@ -39,25 +34,8 @@ azkar_list = load_azkar("azkar.txt")
 # تأكيد تعريف البوت قبل الحدث
 print("🔹 البوت متصل بالتليجرام بنجاح!")
 
-# كود فحص استقبال الرسائل
-@bot.on(events.NewMessage)
-async def check_messages(event):
-    print(f"📌 استلم البوت رسالة من: {event.chat_id} - محتوى الرسالة: {event.text}")
-
-@bot.on(events.NewMessage(pattern="/start"))
-async def start_handler(event):
-    print(f"🚀 استقبل البوت أمر /start من: {event.chat_id}")  # تأكيد استقبال الأمر
-
-    message = """✨ **ذكِّر قلبك بالله، وارتقِ بروحك 📿**  
-    في زحمة الحياة، البوت ده هيكون **رفيقك للذكر والدعاء والتسبيح** 🌙  
-    خلّي لسانك رطب بذكر الله، وابدأ كل يوم بنور جديد 💛  
-    
-    ﴿ **فَاذْكُرُونِي أَذْكُرْكُمْ** ﴾ – وعد ربّاني لا يُخلف!  
-    
-    💻 **مبرمج البوت:** @Mavdiii"""
-
-    keyboard = [[Button.url("📖 تلاوات قرآنية", "https://t.me/Telawat_Quran_0")]]
-    await event.respond(message, buttons=keyboard)
+# تشغيل البوت
+bot = TelegramClient("bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
 # إرسال ذكر عشوائي لكل الجروبات
 async def send_zekr():
@@ -71,9 +49,19 @@ async def send_zekr():
                 print(f"✅ تم إرسال الذكر إلى الجروب {chat_id}")
         else:
             print("⚠ مفيش أذكار! تأكد إنك ضفتها في 'azkar.txt'.")
-
+        
         await asyncio.sleep(300)  # كل 5 دقائق
 
-# تشغيل البوت والاستجابة للأحداث
-with bot:
-    bot.loop.run_until_complete(send_zekr())
+# وظيفة Vercel لتشغيل البوت
+def handler(request):
+    loop = asyncio.get_event_loop()
+    loop.create_task(send_zekr())  # تنفيذ send_zekr بشكل غير متزامن
+
+    return {
+        "statusCode": 200,
+        "body": "الوظيفة تعمل بشكل صحيح!"
+    }
+
+# تشغيل البوت في بيئة Vercel
+if __name__ == "__main__":
+    handler("test")
